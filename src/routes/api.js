@@ -1,0 +1,55 @@
+const router = require('express').Router();
+const DBMANAGER = require('../controller/mongodb');
+
+router.get(`/api/:collection`, async (req, res) => {
+  const reqInfo = {
+    collection: req.params.collection
+  };
+
+  const response = await DBMANAGER.getAllMethod(reqInfo);
+  res.json(response);
+});
+
+router.get(`/api/:collection/:id`, async (req, res) => {
+  const reqInfo = {
+    collection: req.params.collection,
+    id: req.params.id
+  };
+
+  const response = await DBMANAGER.getSingle(reqInfo);
+  res.json(response);
+});
+
+router.post(`/api/:collection`, async (req, res) => {
+  const reqInfo = {
+    collection: req.params.collection,
+    body: req.body
+  };
+
+  const response = await DBMANAGER.postAny(reqInfo);
+  res.json(response);
+});
+
+router.put(`/api/:collection/:id`, async (req, res) => {
+  const reqInfo = {
+    collection: req.params.collection,
+    body: req.body,
+    id: req.params.id
+  };
+
+  const response = await DBMANAGER.updateMethod(reqInfo);
+  res.json(response);
+});
+
+router.delete(`/api/:collection/:id`, async (req, res) => {
+  const reqInfo = {
+    collection: req.params.collection,
+    id: req.params.id
+  };
+
+  const response = await DBMANAGER.deleteMethod(reqInfo);
+  res.json(response);
+});
+
+
+module.exports = router;
