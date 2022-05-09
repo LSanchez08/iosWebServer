@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const DBMANAGER = require('../controller/mongodb');
+const auth = require('../utils/checkauth');
 
-router.get(`/api/:collection`, async (req, res) => {
+router.get(`/api/:collection`, auth, async (req, res) => {
   const reqInfo = {
     collection: req.params.collection
   };
@@ -10,7 +11,7 @@ router.get(`/api/:collection`, async (req, res) => {
   res.json(response);
 });
 
-router.get(`/api/:collection/:id`, async (req, res) => {
+router.get(`/api/:collection/:id`, auth, async (req, res) => {
   const reqInfo = {
     collection: req.params.collection,
     id: req.params.id
@@ -30,7 +31,17 @@ router.post(`/api/:collection`, async (req, res) => {
   res.json(response);
 });
 
-router.put(`/api/:collection/:id`, async (req, res) => {
+router.post(`/api/:collection/validate`, async (req, res) => {
+  const reqInfo = {
+    collection: req.params.collection,
+    body: req.body
+  };
+
+  const response = await DBMANAGER.login(reqInfo);
+  res.json(response);
+});
+
+router.put(`/api/:collection/:id`, auth, async (req, res) => {
   const reqInfo = {
     collection: req.params.collection,
     body: req.body,
@@ -41,7 +52,7 @@ router.put(`/api/:collection/:id`, async (req, res) => {
   res.json(response);
 });
 
-router.delete(`/api/:collection/:id`, async (req, res) => {
+router.delete(`/api/:collection/:id`, auth, async (req, res) => {
   const reqInfo = {
     collection: req.params.collection,
     id: req.params.id

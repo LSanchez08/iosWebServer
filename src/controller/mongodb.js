@@ -1,12 +1,18 @@
 const mongo = require('mongodb');
 const { ObjectId } = mongo;
 const MongoClient = require('mongodb').MongoClient;
+const jwt = require('jsonwebtoken');
 const {
   DBNAME,
-  MONGODB_URI
+  MONGODB_HOST,
+  SECRET
 } = process.env;
+const encryption = require('../utils/encyption');
 
-const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true });
+
+const URI = `${MONGODB_HOST}${DBNAME}`;
+
+const client = new MongoClient(URI, { useNewUrlParser: true });
 
 // Initializating
 exports.initialize = async () => {
@@ -60,6 +66,11 @@ exports.postAny = async (reqInfo) => {
       body
     } = reqInfo;
     const object = body.length ? body : [body];
+    object.forEach(async (element) => {
+      if (element.password) {
+        element.password = await encryption.encryptPassword(element.password)
+      }
+    });
 
     const insert = await client.db(DBNAME).collection(collection).insertMany(object);
     const response = Object.values(insert.insertedIds).map((id) => id);
@@ -72,6 +83,44 @@ exports.postAny = async (reqInfo) => {
   }
 }
 
+exports.login = async (reqInfo) => {
+  try {
+    const {
+      collection,
+      body
+    } = reqInfo
+
+    if (!body.password || !body.email) {
+      return {
+        message: 'Incomplete data provided.'
+      };
+    }
+    const user = await client.db(DBNAME).collection(collection).findOne({ email: body.email });
+    const validPassword = await encryption.matchPassword(
+      body.password,
+      user.password
+    );
+    if (!validPassword) {
+      return {
+        message: 'Incorrect data was provided'
+      };
+    }
+
+    const accessToken = await jwt.sign({ id: user._id, type:'user', email: user.email }, SECRET, { expiresIn: '100d' });
+
+    return {
+      email: user.email,
+      accessToken
+    };
+
+  } catch (error) {
+    console.log(error)
+    return {
+      errormessage: error.message
+    }
+  }
+}
+
 exports.updateMethod = async (reqInfo) => {
   try {
     const {
@@ -79,6 +128,11 @@ exports.updateMethod = async (reqInfo) => {
       body,
       id
     } = reqInfo;
+
+    if (body.password) {
+      const passwordEncrypted = await encryptPassword(body.password || '');
+      body.password = passwordEncrypted;
+    }
   
     const response = await client.db(DBNAME).collection(collection).findOneAndUpdate({ _id: ObjectId(id) }, { $set: body });
 
