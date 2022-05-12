@@ -66,7 +66,7 @@ exports.postAny = async (reqInfo) => {
       body
     } = reqInfo;
     const object = body.length ? body : [body];
-    const values = await (encrypt(object));
+    const values = await encrypt(object);
 
     console.log({values})
 
@@ -85,6 +85,7 @@ const encrypt = async (data) => {
   return data.map(async (element) => {
     if (element.password) {
       element.password = await encryption.encryptPassword(element.password);
+      console.log({element})
     }
 
     return element;
