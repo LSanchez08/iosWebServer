@@ -68,8 +68,8 @@ exports.postAny = async (reqInfo) => {
     const object = body.length ? body : [body];
     object.forEach(async (element) => {
       if (element.password) {
-        console.log({message: "Encryption"});
-        element.password = await encryption.encryptPassword(element.password)
+        element.password = await encryption.encryptPassword(element.password);
+        console.log({element});
       }
     });
 
