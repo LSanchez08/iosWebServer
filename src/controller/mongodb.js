@@ -65,15 +65,10 @@ exports.postAny = async (reqInfo) => {
       collection,
       body
     } = reqInfo;
+    if (body.password) {
+      body.password = await encryption.encryptPassword(body.password);
+    }
     const object = body.length ? body : [body];
-    console.log({object})
-    object.map(async (element) => {
-      if (element.password) {
-        element.password = await encryption.encryptPassword(element.password);
-      }
-
-      return element;
-    });
 
     const insert = await client.db(DBNAME).collection(collection).insertMany(object);
     const response = Object.values(insert.insertedIds).map((id) => id);
