@@ -17,8 +17,12 @@ services:
 
   database:
     container_name: mongoDB_IOS
+    restart: always
     image: mongo
     ports:
       - "27017:27017"
     logging:
       driver: none
+    volumes:
+      - ./db/data:/data/db
+      - ./home:/home
