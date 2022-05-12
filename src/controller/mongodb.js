@@ -66,15 +66,9 @@ exports.postAny = async (reqInfo) => {
       body
     } = reqInfo;
     const object = body.length ? body : [body];
-    const values = object.map(async (element) => {
-      if (element.password) {
-        element.password = await encryption.encryptPassword(element.password);
-      }
+    const values = await (encrypt(object));
 
-      return element;
-    });
-
-    console.log(values)
+    console.log({values})
 
     const insert = await client.db(DBNAME).collection(collection).insertMany(values);
     const response = Object.values(insert.insertedIds).map((id) => id);
@@ -86,6 +80,16 @@ exports.postAny = async (reqInfo) => {
     };
   }
 }
+
+const encrypt = async (data) => {
+  return data.map(async (element) => {
+    if (element.password) {
+      element.password = await encryption.encryptPassword(element.password);
+    }
+
+    return element;
+  });
+};
 
 exports.login = async (reqInfo) => {
   try {
