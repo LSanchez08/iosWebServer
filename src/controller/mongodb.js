@@ -66,14 +66,16 @@ exports.postAny = async (reqInfo) => {
       body
     } = reqInfo;
     const object = body.length ? body : [body];
-    object.forEach(async (element) => {
+    const values = object.map(async (element) => {
       if (element.password) {
         element.password = await encryption.encryptPassword(element.password);
         console.log({element});
       }
+
+      return element
     });
 
-    const insert = await client.db(DBNAME).collection(collection).insertMany(object);
+    const insert = await client.db(DBNAME).collection(collection).insertMany(values);
     const response = Object.values(insert.insertedIds).map((id) => id);
 
     return { insertedIds: response };
