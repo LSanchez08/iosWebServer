@@ -8,17 +8,5 @@ services:
     command: npm run dev
     ports:
       - "4000:4000"
-    # links: 
-    #   - database
     volumes:
       - .:/app
-  #   depends_on:
-  #     - database
-
-  # database:
-  #   container_name: mongoDB_IOS
-  #   image: mongo
-  #   ports:
-  #     - "27018:27017"
-  #   logging:
-  #     driver: none
