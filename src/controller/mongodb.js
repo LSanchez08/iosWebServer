@@ -89,12 +89,12 @@ exports.login = async (reqInfo) => {
       body
     } = reqInfo
 
-    if (!body.password || !body.email) {
+    if (!body.password || !body.username) {
       return {
         message: 'Incomplete data provided.'
       };
     }
-    const user = await client.db(DBNAME).collection(collection).findOne({ email: body.email });
+    const user = await client.db(DBNAME).collection(collection).findOne({ email: body.username });
     const validPassword = await encryption.matchPassword(
       body.password,
       user.password
