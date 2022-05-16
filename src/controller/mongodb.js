@@ -94,7 +94,7 @@ exports.login = async (reqInfo) => {
         message: 'Incomplete data provided.'
       };
     }
-    const user = await client.db(DBNAME).collection(collection).findOne({ email: body.username });
+    const user = await client.db(DBNAME).collection(collection).findOne({ username: body.username });
     const validPassword = await encryption.matchPassword(
       body.password,
       user.password
