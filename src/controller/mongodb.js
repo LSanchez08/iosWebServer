@@ -29,10 +29,11 @@ return client;
 exports.getAllMethod = async (reqInfo) => {
   try {
     const {
-      collection
+      collection,
+      query
     } = reqInfo;
 
-    const response = await client.db(DBNAME).collection(collection).find().toArray();
+    const response = await client.db(DBNAME).collection(collection).find(JSON.parse(query)).toArray();
 
     return response;
   } catch (error){
