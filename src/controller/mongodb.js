@@ -66,6 +66,14 @@ exports.postAny = async (reqInfo) => {
       collection,
       body
     } = reqInfo;
+    if (body.username) {
+      const exist = await client.db(DBNAME).collection(collection).findOne({username: body.username});
+      if (exist) {
+        return {
+          message: 'El usuario ya existe'
+        };
+      }
+    }
     if (body.password) {
       body.password = await encryption.encryptPassword(body.password);
     }
