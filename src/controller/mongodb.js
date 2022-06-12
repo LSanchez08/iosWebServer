@@ -109,7 +109,7 @@ exports.login = async (reqInfo) => {
     const accessToken = await jwt.sign({ id: user._id, type:'user', email: user.email }, SECRET, { expiresIn: '100d' });
 
     return {
-      email: user.email,
+      user,
       accessToken
     };
 
