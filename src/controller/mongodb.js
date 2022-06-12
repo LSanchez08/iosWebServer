@@ -29,10 +29,11 @@ return client;
 exports.getAllMethod = async (reqInfo) => {
   try {
     const {
-      collection
+      collection,
+      query
     } = reqInfo;
 
-    const response = await client.db(DBNAME).collection(collection).find().toArray();
+    const response = await client.db(DBNAME).collection(collection).find(JSON.parse(query)).toArray();
 
     return response;
   } catch (error){
@@ -65,12 +66,18 @@ exports.postAny = async (reqInfo) => {
       collection,
       body
     } = reqInfo;
-    const object = body.length ? body : [body];
-    object.forEach(async (element) => {
-      if (element.password) {
-        element.password = await encryption.encryptPassword(element.password)
+    if (body.username) {
+      const exist = await client.db(DBNAME).collection(collection).findOne({username: body.username});
+      if (exist) {
+        return {
+          message: 'El usuario ya existe'
+        };
       }
-    });
+    }
+    if (body.password) {
+      body.password = await encryption.encryptPassword(body.password);
+    }
+    const object = body.length ? body : [body];
 
     const insert = await client.db(DBNAME).collection(collection).insertMany(object);
     const response = Object.values(insert.insertedIds).map((id) => id);
@@ -90,12 +97,12 @@ exports.login = async (reqInfo) => {
       body
     } = reqInfo
 
-    if (!body.password || !body.email) {
+    if (!body.password || !body.username) {
       return {
         message: 'Incomplete data provided.'
       };
     }
-    const user = await client.db(DBNAME).collection(collection).findOne({ email: body.email });
+    const user = await client.db(DBNAME).collection(collection).findOne({ username: body.username });
     const validPassword = await encryption.matchPassword(
       body.password,
       user.password

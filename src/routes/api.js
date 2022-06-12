@@ -4,7 +4,8 @@ const auth = require('../utils/checkauth');
 
 router.get(`/api/:collection`, auth, async (req, res) => {
   const reqInfo = {
-    collection: req.params.collection
+    collection: req.params.collection,
+    query: req.query.query || '{}'
   };
 
   const response = await DBMANAGER.getAllMethod(reqInfo);
