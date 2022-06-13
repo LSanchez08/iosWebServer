@@ -8,7 +8,12 @@ const {
   SECRET
 } = process.env;
 const encryption = require('../utils/encyption');
+const {
+  allowedEvalKeyWords,
+  disallowedEvalKeyWords
+} = require('../utils/constants')
 const { each, isArray } = require('lodash');
+
 
 
 const URI = `${MONGODB_HOST}${DBNAME}`;
