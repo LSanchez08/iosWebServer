@@ -33,7 +33,7 @@ exports.getAllMethod = async (reqInfo) => {
       query
     } = reqInfo;
 
-    const response = await client.db(DBNAME).collection(collection).find(JSON.parse(query)).toArray();
+    const response = await client.db(DBNAME).collection(collection).find(normalizeIfOid(JSON.parse(query))).toArray();
 
     return response;
   } catch (error){
@@ -167,3 +167,27 @@ exports.deleteMethod = async (reqInfo) => {
     };
   }
 }
+
+const normalizeIfOid = (query) => each(query, (val, key) => {
+  try {
+    if (key === '_id') {
+      const hasValidKeyWords = allowedEvalKeyWords.every((keyWord) => JSON.stringify(val).includes(keyWord));
+      console.log('hasValidKeyWords:', hasValidKeyWords)
+      const hasInvalidKeyWords = disallowedEvalKeyWords.some((keyWord) => JSON.stringify(val).includes(keyWord));
+      console.log('hasInvalidKeyWords:', hasInvalidKeyWords)
+
+      if (!hasValidKeyWords || hasInvalidKeyWords) {
+        query[key] = 'Invalid query';
+        return;
+      }
+
+      if (query[key].$in && isArray(query[key].$in)) {
+        query[key].$in = query[key].$in.map((query) => eval(query));
+      } else if (query[key].$nin && isArray(query[key].$nin)) {
+        query[key].$nin = query[key].$nin.map((query) => eval(query));
+      } else {
+        query[key] = eval(val);
+      }
+    }
+  } catch {}
+});
