@@ -83,6 +83,9 @@ exports.postAny = async (reqInfo) => {
     if (body.password) {
       body.password = await encryption.encryptPassword(body.password);
     }
+    if (collection === 'carrito') {
+      body.products = [];
+    }
     const object = body.length ? body : [body];
 
     const insert = await client.db(DBNAME).collection(collection).insertMany(object);
